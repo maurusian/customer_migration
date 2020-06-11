@@ -1,5 +1,6 @@
 # Customer Migration
-Simulating a simple case of data migration
+Simulating a simple case of data migration.
+
 The migration simulation is done in Python, and separately, also in SQL and PL/SQL.
 
 ## Explanation:
