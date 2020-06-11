@@ -1,5 +1,6 @@
 # Customer Migration
 Simulating a simple case of data migration
+The migration simulation is done in Python, and separately, also in SQL and PL/SQL.
 
 ## Explanation:
 We have two systems, a current system consisting of a table of customers with 3 properties (ID, Update_date, Location), and an update system where new rows to be updated/inserted/deleted are listed, with an additional column update_flag which specifies how to treat the row (I = insert, U = update, D = delete).
@@ -11,7 +12,7 @@ The task is to build a workflow that updates the current system based on the upd
 1. warning or error messages if a record to be deleted or updated does not exist in the current system
 1. Optional rule (not implemented): do not update if the new record has an empty location value
 
-## Data input example:
+## Data input example (Python):
 
 4
 
@@ -34,6 +35,10 @@ The task is to build a workflow that updates the current system based on the upd
 104 31.12.1999 Prague U
 
 105 05.02.2018 Vienna I
+
+## SQL and PL/SQL solution:
+
+The SQL file contains the DDL, DML code, in addition to DQL (SELECT) to verify the content of the tables after the migration. The PL/SQL script contains an anonymous block that performs the migration.
 
 ## Result:
 Current
