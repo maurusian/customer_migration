@@ -1,4 +1,4 @@
-# customer_migration
+# Customer Migration
 Simulating a simple case of data migration
 
 ## Explanation:
