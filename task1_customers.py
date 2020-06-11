@@ -1,10 +1,13 @@
 from datetime import datetime #for handling dates
+import sys
 
 DATE_FORMAT = '%d.%m.%Y'
 
 
-#class that handles customer objects
 class Customer():
+    """
+    Class that handles Customer objects
+    """
     def __init__(self,customer_id,update_date,location,update_flag = None):
         self.customer_id = customer_id
         self.update_date = datetime.strptime(update_date,DATE_FORMAT)  #convert to datetime type
@@ -12,18 +15,34 @@ class Customer():
         self.update_flag = update_flag
 
     def update(self,upd_customer):
-        self.update_date = upd_customer.update_date
-        self.location = upd_customer.location
+        """
+        Updates a customer, by copying the update
+        date and the location from the attributes
+        of upd_customer.
 
+        The customer_id should normally be the same.
 
         #should customer be updated if the new location is empty?
         #I suppose not, since it's the only meaningful piece of
         #data here, but depends on the specifications
+        """
+        self.update_date = upd_customer.update_date
+        self.location = upd_customer.location
+       
 
     def copy(self):
+        """
+        Returns a copy of the calling Customer object
+        but without the update_flag
+        """
         return Customer(self.customer_id,self.update_date.strftime(DATE_FORMAT),self.location)
 
     def __repr__(self):
+        """
+        Returns a string that can be printed when
+        calling the built-in function "print" on
+        the calling object.
+        """
         if self.update_flag is None:
             flag = ''
         else:
@@ -33,11 +52,22 @@ class Customer():
 
 
 class CustomerList():
+    """
+    Class that handles tables consisting of Customer records
+    """
     def __init__(self,customers,system):
         self.customers = customers
         self.system    = system
 
     def __contains__(self,cust_id):
+        """
+        Implements the built-in functionality
+        "in" to test if a customer is in the
+        customer list or not.
+
+        This functionality was not used in the
+        end.
+        """
         for cust in self.customers:
             if cust.customer_id == cust_id:
                 return True
@@ -45,6 +75,12 @@ class CustomerList():
         return False
 
     def __repr__(self):
+        """
+        Returns a string that can be printed when
+        calling the built-in function "print" on
+        the calling object.
+        Uses __repr__ from Customer class.
+        """
         ss = self.system+'\n'
 
         if len(self.customers)==0:
@@ -88,21 +124,31 @@ class CustomerList():
             if cust.customer_id not in added_id:
                 cleaned_list.append(self.get_cust_by_id(cust.customer_id))
                 added_id.append(cust.customer_id)
-        print(cleaned_list)
+        
         self.customers = cleaned_list
 
     def insert_customer(self,customer):
-        lis = self.customers
-        lis.append(customer)
-        #print(lis)
-        self.customers = lis
+        """
+        Inserts a customer into the customers
+        attribute of the current Customer_List
+        object.
+        """
+        self.customers.append(customer)
 
     def delete_cust_from_list(self,customer):
-
+        """
+        Deletes a customer from the customers
+        attribute of the current Customer_List
+        object.
+        """
         del self.customers[self.customers.index(customer)]
 
     def update_row(self,upd_customer):
-        #calls update_customer from Customer class
+        """
+        Updates the customer with the same index
+        upd_customer.
+        calls update_customer from Customer class.
+        """
         for i in range(len(self.customers)):
             if self.customers[i].customer_id == upd_customer.customer_id:
                 self.customers[i].update(upd_customer)
@@ -111,6 +157,12 @@ class CustomerList():
 
     #central functionality
     def update_curr_cust_list(self,upd_cust_list):  #upd_cust_list = updated CustomerList object, self = current CustomerList object
+        """
+        Runs the routine to update the current system with
+        data from the update system.
+        Runs all kinds of checks to ensure reliability.
+        Reports issues on the console.
+        """
         print('start update proc')
         upd_cust_list.clean_customer_list()
         
@@ -123,7 +175,11 @@ class CustomerList():
             if cust is None: #no customer returned
                         
                 if upd_cust_list.customers[i].update_flag == 'I': #normal case
-                    self.insert_customer(upd_cust_list.customers[i].copy())
+                    try:
+                        self.insert_customer(upd_cust_list.customers[i].copy())
+                    except:
+                        print('Insertion error for cust '+str(upd_cust_list.customers[i].customer_id))
+                        print(sys.exc_info())
 
                 elif upd_cust_list.customers[i].update_flag == 'D':
                     print('warning')  #maybe the cust was already deleted in a previous run, maybe it's something that should be looked into
@@ -136,12 +192,18 @@ class CustomerList():
                 if upd_cust_list.customers[i].update_date >= cust.update_date: #there's no point checking any further if the update record is older than the current record
                         
                     if upd_cust_list.customers[i].update_flag == 'U':
-
-                        self.update_row(upd_cust_list.customers[i])
+                        try:
+                            self.update_row(upd_cust_list.customers[i])
+                        except:
+                            print('Update error for cust '+str(upd_cust_list.customers[i].customer_id))
+                            print(sys.exc_info())
                         
                     elif upd_cust_list.customers[i].update_flag == 'D':
-                            
-                        self.delete_cust_from_list(cust)
+                        try:
+                            self.delete_cust_from_list(cust)
+                        except:
+                            print('Deletion error for cust '+str(upd_cust_list.customers[i].customer_id))
+                            print(sys.exc_info())
                         
                     elif upd_cust_list.customers[i].update_flag == 'I':
                         print('Insert warning: customer with ID '+str(cust.customer_id)+' already inserted in the current instance.')
@@ -188,11 +250,11 @@ if __name__ == '__main__':
     curr_cust_list.update_curr_cust_list(upd_cust_list)
 
 
-    print('********* After update ********')
+    print('\n********* After update ********')
     print(upd_cust_list)
     print(curr_cust_list)
 
     
     upd_cust_list.purge_customer_list()
-    print('********* After purge of update system ********')
+    print('\n********* After purge of update system ********')
     print(upd_cust_list)
